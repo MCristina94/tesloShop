@@ -1,6 +1,6 @@
 <div class="card bg-base-100 shadow-xl animate-fadeIn">
   <figure>
-    <img [src]="imageUrl()" [alt]="product().title" />
+    <img [src]="product().images | productImage" [alt]="product().title" />
   </figure>
   <div class="card-body">
     <h2 class="card-title font-family-montserrat text-accent text-xl">
