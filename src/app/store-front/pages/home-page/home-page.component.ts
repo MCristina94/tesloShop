@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { CardComponent } from '@products/card/card.component';
+import { CardComponent } from '@products/components/card/card.component';
 import { ProductsService } from '@products/services/product.service';
 
 @Component({
@@ -19,7 +19,7 @@ export class HomePageComponent {
     // Ya no recibe un objeto { request }, sino directamente los parámetros.
     // Como no hay parámetros, la función no necesita argumentos.
     stream: () => {
-      return this.productsService.getProducts();
+      return this.productsService.getProducts({});
     },
   });
 }
