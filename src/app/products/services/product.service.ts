@@ -4,7 +4,7 @@ import {
   Product,
   ProductsResponse,
 } from '@products/interfaces/product.interface';
-import { Observable, tap } from 'rxjs';
+import { delay, Observable, of, tap } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
 
 const BASE_URL = environment.baseUrl;
@@ -19,8 +19,17 @@ interface Options {
 export class ProductsService {
   private http = inject(HttpClient);
 
+  private productsCache = new Map<string, ProductsResponse>(); //esto es para el cache
+  private productCache = new Map<string, Product>(); //esto es para el cache
+
   getProducts(options: Options): Observable<ProductsResponse> {
     const { limit = 9, offset = 0, gender = '' } = options;
+
+    const key = `${limit}-${offset}-${gender}`; //esto es para el cache
+    if (this.productsCache.has(key)) {
+      //esto es para el cache
+      return of(this.productsCache.get(key)!);
+    }
 
     return this.http
       .get<ProductsResponse>(`${BASE_URL}/products`, {
@@ -30,9 +39,18 @@ export class ProductsService {
           gender: gender,
         },
       })
-      .pipe(tap((resp) => console.log(resp)));
+      .pipe(
+        tap((resp) => console.log(resp)),
+        tap((resp) => this.productsCache.set(key, resp)) //esto es para el cache
+      );
   }
   getProductById(idSlug: string): Observable<Product> {
-    return this.http.get<Product>(`${BASE_URL}/products/${idSlug}`);
+    if (this.productCache.has(idSlug)) {
+      return of(this.productCache.get(idSlug)!);
+    }
+    return this.http.get<Product>(`${BASE_URL}/products/${idSlug}`).pipe(
+      //esto es para el cache
+      tap((product) => this.productCache.set(idSlug, product))
+    ); //esto es para el cache
   }
 }
