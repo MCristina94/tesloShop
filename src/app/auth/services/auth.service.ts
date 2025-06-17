@@ -40,20 +40,8 @@ export class AuthService {
         password: password,
       })
       .pipe(
-        tap((resp) => {
-          this._user.set(resp.user);
-          this._authStatus.set('authenticated'); // si la solicitud es exitosa el status sera autenticado
-          this._token.set(resp.token);
-
-          localStorage.setItem('token', resp.token);
-        }),
-        map(() => true),
-        catchError((error: any) => {
-          this._user.set(null);
-          this._authStatus.set('not-authenticated'); // si la solicitud no es exitosa el status sera  no-autenticado
-          this._token.set(null);
-          return of(false);
-        })
+        map((resp) => this.handleAuthSucces(resp)),
+        catchError((error: any) => this.handleAuthError(error))
       );
   }
 
@@ -61,6 +49,7 @@ export class AuthService {
     //esta funcion verifica si el usuario sigue autenticado cuando se recarga la app o ingresas nuevamente a la app
     const token = localStorage.getItem('token');
     if (!token) {
+      this.logout();
       return of(false);
     }
     return this.http
@@ -70,20 +59,31 @@ export class AuthService {
         },
       })
       .pipe(
-        tap((resp) => {
-          this._user.set(resp.user);
-          this._authStatus.set('authenticated'); // si la solicitud es exitosa el status sera autenticado
-          this._token.set(resp.token);
-
-          localStorage.setItem('token', resp.token);
-        }),
-        map(() => true),
-        catchError((error: any) => {
-          this._user.set(null);
-          this._authStatus.set('not-authenticated'); // si la solicitud no es exitosa el status sera  no-autenticado
-          this._token.set(null);
-          return of(false);
-        })
+        map((resp) => this.handleAuthSucces(resp)),
+        catchError((error: any) => this.handleAuthError(error))
       );
+  }
+
+  logout() {
+    this._user.set(null);
+    this._authStatus.set('not-authenticated');
+    this._token.set(null);
+
+    localStorage.clear();
+  }
+
+  private handleAuthSucces({ token, user }: AuthResponse) {
+    this._user.set(user);
+    this._authStatus.set('authenticated'); // si la solicitud es exitosa el status sera autenticado
+    this._token.set(token);
+
+    localStorage.setItem('token', token);
+
+    return true; //para indicar que todo salio bien
+  }
+
+  private handleAuthError(error: any) {
+    this.logout();
+    return of(false);
   }
 }
