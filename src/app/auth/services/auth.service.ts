@@ -45,6 +45,22 @@ export class AuthService {
       );
   }
 
+  register(
+    email: string,
+    password: string,
+    fullName: string
+  ): Observable<boolean> {
+    return this.http
+      .post<AuthResponse>(`${baseUrl}/auth/register`, {
+        email: email,
+        password: password,
+        fullName: fullName,
+      })
+      .pipe(
+        map((resp) => this.handleAuthSucces(resp)),
+        catchError((error: any) => this.handleAuthError(error))
+      );
+  }
   checkStatus(): Observable<boolean> {
     //esta funcion verifica si el usuario sigue autenticado cuando se recarga la app o ingresas nuevamente a la app
     const token = localStorage.getItem('token');
@@ -89,8 +105,7 @@ export class AuthService {
     this._authStatus.set('not-authenticated');
     this._token.set(null);
 
-    //TODO: revertir
-    // localStorage.clear();
+    localStorage.clear();
   }
 
   private handleAuthSucces({ token, user }: AuthResponse) {
