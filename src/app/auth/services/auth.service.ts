@@ -13,7 +13,7 @@ const baseUrl = environment.baseUrl;
 export class AuthService {
   private _authStatus = signal<AuthStatus>('checking');
   private _user = signal<User | null>(null);
-  private _token = signal<string | null>(null);
+  private _token = signal<string | null>(localStorage.getItem('token'));
   private http = inject(HttpClient);
 
   checkStatusResource = rxResource({
@@ -54,9 +54,9 @@ export class AuthService {
     }
     return this.http
       .get<AuthResponse>(`${baseUrl}/auth/check-status`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        // headers: {
+        //   Authorization: `Bearer ${token}`,
+        // },
       })
       .pipe(
         map((resp) => this.handleAuthSucces(resp)),
@@ -64,12 +64,33 @@ export class AuthService {
       );
   }
 
+  // =====>>>> ESTA ES LA FORMA DE HACERLO SIN USAR INTERCEPTOR PARA EL TOKEN
+  //   checkStatus(): Observable<boolean> {
+  //   //esta funcion verifica si el usuario sigue autenticado cuando se recarga la app o ingresas nuevamente a la app
+  //   const token = localStorage.getItem('token');
+  //   if (!token) {
+  //     this.logout();
+  //     return of(false);
+  //   }
+  //   return this.http
+  //     .get<AuthResponse>(`${baseUrl}/auth/check-status`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     })
+  //     .pipe(
+  //       map((resp) => this.handleAuthSucces(resp)),
+  //       catchError((error: any) => this.handleAuthError(error))
+  //     );
+  // }
+
   logout() {
     this._user.set(null);
     this._authStatus.set('not-authenticated');
     this._token.set(null);
 
-    localStorage.clear();
+    //TODO: revertir
+    // localStorage.clear();
   }
 
   private handleAuthSucces({ token, user }: AuthResponse) {
