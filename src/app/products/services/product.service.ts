@@ -53,4 +53,14 @@ export class ProductsService {
       tap((product) => this.productCache.set(idSlug, product))
     ); //esto es para el cache
   }
+
+  getProductByOnlyId(id: string): Observable<Product> {
+    if (this.productCache.has(id)) {
+      return of(this.productCache.get(id)!);
+    }
+    return this.http.get<Product>(`${BASE_URL}/products/${id}`).pipe(
+      //esto es para el cache
+      tap((product) => this.productCache.set(id, product))
+    ); //esto es para el cache
+  }
 }
