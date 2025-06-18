@@ -1,4 +1,8 @@
-<form class="flex flex-col gap-2">
+<form
+  class="flex flex-col gap-2"
+  [formGroup]="registerForm"
+  (ngSubmit)="onSubmit()"
+>
   <label class="input input-bordered flex items-center gap-2">
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -64,11 +68,11 @@
     />
   </label>
 
-  <button type="submit" class="btn btn-secondary">Login</button>
+  <button type="submit" class="btn btn-secondary">Registrarse</button>
 
   <p class="text-slate-700">
-    ¿No tienes cuenta?
-    <a routerLink="/auth/register" class="text-secondary">Crea una aquí</a>
+    ¿Ya tienes cuenta?
+    <a routerLink="/auth/login" class="text-secondary">Login</a>
   </p>
 </form>
 
